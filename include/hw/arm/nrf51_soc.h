@@ -17,6 +17,7 @@
 #include "hw/gpio/nrf51_gpio.h"
 #include "hw/nvram/nrf51_nvm.h"
 #include "hw/timer/nrf51_timer.h"
+#include "hw/misc/nrf51_cpm.h"
 #include "hw/clock.h"
 #include "qom/object.h"
 
@@ -37,6 +38,7 @@ struct NRF51State {
     NRF51NVMState nvm;
     NRF51GPIOState gpio;
     NRF51TimerState timer[NRF51_NUM_TIMERS];
+    NRF51CPMState cpm;
 
     MemoryRegion iomem;
     MemoryRegion sram;

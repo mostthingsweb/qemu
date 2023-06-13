@@ -121,6 +121,14 @@ static void nrf51_soc_realize(DeviceState *dev_soc, Error **errp)
                        qdev_get_gpio_in(DEVICE(&s->cpu),
                        BASE_TO_IRQ(NRF51_RNG_BASE)));
 
+    /* CLOCK, POWER, MPU */
+    if (!sysbus_realize(SYS_BUS_DEVICE(&s->cpm), errp)) {
+        return;
+    }
+
+    mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->cpm), 0);
+    memory_region_add_subregion_overlap(&s->container, NRF51_CPM_BASE, mr, 0);
+
     /* UICR, FICR, NVMC, FLASH */
     if (!object_property_set_uint(OBJECT(&s->nvm), "flash-size",
                                   s->flash_size, errp)) {
@@ -198,6 +206,8 @@ static void nrf51_soc_init(Object *obj)
     object_property_add_alias(obj, "serial0", OBJECT(&s->uart), "chardev");
 
     object_initialize_child(obj, "rng", &s->rng, TYPE_NRF51_RNG);
+
+    object_initialize_child(obj, "cpm", &s->cpm, TYPE_NRF51_CPM);
 
     object_initialize_child(obj, "nvm", &s->nvm, TYPE_NRF51_NVM);
 
