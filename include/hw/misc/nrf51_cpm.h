@@ -23,6 +23,8 @@ OBJECT_DECLARE_SIMPLE_TYPE(NRF51CPMState, NRF51_CPM)
 #define NRF51_CLOCK_TASK_HFCLKSTOP        0x004
 #define NRF51_CLOCK_EVENT_HFCLKSTARTED    0x100
 
+#define NRF51_POWER_SYSTEMOFF             0x500
+
 struct NRF51CPMState {
     SysBusDevice parent_obj;
 

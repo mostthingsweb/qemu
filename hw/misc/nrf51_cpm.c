@@ -14,8 +14,11 @@
 #include "hw/qdev-properties.h"
 #include "migration/vmstate.h"
 
+#include "hw/core/cpu.h"
+
 #include "hw/arm/nrf51.h"
 #include "hw/misc/nrf51_cpm.h"
+#include "exec/cpu-all.h"
 
 static uint64_t cpm_read(void *opaque, hwaddr offset, unsigned int size)
 {
@@ -26,10 +29,13 @@ static uint64_t cpm_read(void *opaque, hwaddr offset, unsigned int size)
     case NRF51_CLOCK_EVENT_HFCLKSTARTED:
         r = s->event_hfclkstarted;
         break;
+    case NRF51_POWER_SYSTEMOFF:
+        r = 1;
+        break;
     }
 
-    qemu_log(                  "%s: read offset 0x%" HWADDR_PRIx "\n",
-                               __func__, offset);
+    qemu_log("%s: read offset 0x%" HWADDR_PRIx "\n",
+             __func__, offset);
 
     return r;
 }
@@ -59,13 +65,23 @@ static void cpm_write(void *opaque, hwaddr offset, uint64_t value, unsigned int 
         if (value == NRF51_EVENT_CLEAR) {
             s->event_hfclkstarted = 0;
         }
+        break;
+    case NRF51_POWER_SYSTEMOFF:
+        qemu_log(
+                "%s: SYSTEMOFF!!!",
+                __func__);
+        if (value == 1) {
+            current_cpu->exception_index = EXCP_HALTED;
+            // TODO: cpu_loop_exit(...)
+        }
+        break;
     default:
         break;
 
     }
     qemu_log(
-                  "%s: write offset 0x%" HWADDR_PRIx ", value = %lu \n",
-                  __func__, offset, value);
+            "%s: write offset 0x%" HWADDR_PRIx ", value = %lu \n",
+            __func__, offset, value);
 }
 
 static const MemoryRegionOps cpm_ops = {
