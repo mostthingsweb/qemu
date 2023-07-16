@@ -14,11 +14,9 @@
 #include "hw/qdev-properties.h"
 #include "migration/vmstate.h"
 
-#include "hw/core/cpu.h"
-
 #include "hw/arm/nrf51.h"
 #include "hw/misc/nrf51_cpm.h"
-#include "exec/cpu-all.h"
+#include "target/arm/arm-powerctl.h"
 
 static uint64_t cpm_read(void *opaque, hwaddr offset, unsigned int size)
 {
@@ -71,8 +69,7 @@ static void cpm_write(void *opaque, hwaddr offset, uint64_t value, unsigned int 
                 "%s: SYSTEMOFF!!!",
                 __func__);
         if (value == 1) {
-            current_cpu->exception_index = EXCP_HALTED;
-            // TODO: cpu_loop_exit(...)
+            arm_set_cpu_off(0);
         }
         break;
     default:
