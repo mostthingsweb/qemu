@@ -612,6 +612,12 @@ config MICROBIT
     depends on TCG && ARM
     select NRF51_SOC
 
+config RF502A
+    bool
+    default y
+    depends on TCG && ARM
+    select NRF51_SOC
+
 config NRF51_SOC
     bool
     imply I2C_DEVICES
