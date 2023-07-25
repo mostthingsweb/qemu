@@ -3177,6 +3177,7 @@ hwcore_ss = ss.source_set()
 io_ss = ss.source_set()
 qmp_ss = ss.source_set()
 qom_ss = ss.source_set()
+rtt_ss = ss.source_set()
 system_ss = ss.source_set()
 specific_fuzz_ss = ss.source_set()
 specific_ss = ss.source_set()
@@ -3329,6 +3330,7 @@ subdir('stubs')
 subdir('trace')
 subdir('util')
 subdir('qom')
+subdir('rtt')
 subdir('authz')
 subdir('crypto')
 subdir('ui')
@@ -3345,6 +3347,12 @@ libqom = static_library('qom', qom_ss.sources() + genh,
                         dependencies: [qom_ss.dependencies()],
                         name_suffix: 'fa')
 qom = declare_dependency(link_whole: libqom)
+
+rtt_ss = rtt_ss.apply(config_host, strict: false)
+librtt = static_library('rtt', rtt_ss.sources(),
+                        dependencies: [rtt_ss.dependencies()],
+                        name_suffix: 'fa')
+rtt = declare_dependency(link_whole: librtt)
 
 event_loop_base = files('event-loop-base.c')
 event_loop_base = static_library('event-loop-base', sources: event_loop_base + genh,
@@ -3669,7 +3677,7 @@ if emulator_modules.length() > 0
 endif
 
 system_ss.add(authz, blockdev, chardev, crypto, io, qmp)
-common_ss.add(qom, qemuutil)
+common_ss.add(qom, qemuutil, rtt)
 
 common_ss.add_all(when: 'CONFIG_SYSTEM_ONLY', if_true: [system_ss])
 common_ss.add_all(when: 'CONFIG_USER_ONLY', if_true: user_ss)

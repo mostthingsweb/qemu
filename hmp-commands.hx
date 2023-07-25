@@ -1865,3 +1865,16 @@ SRST
   List event channels in the guest
 ERST
 #endif
+
+    {
+        .name       = "rtt-start",
+        .args_type  = "",
+        .params     = "",
+        .help       = "Activate SEGGER RTT",
+        .cmd        = hmp_rtt_start,
+    },
+
+SRST
+``xen-event-list``
+  List event channels in the guest
+ERST

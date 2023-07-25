@@ -45,6 +45,7 @@ qapi_all_modules = [
   'pragma',
   'qom',
   'replay',
+  'rtt',
   'run-state',
   'sockets',
   'stats',

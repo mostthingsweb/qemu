@@ -1,0 +1,11 @@
+# -*- Mode: Python -*-
+# vim: filetype=python
+#
+
+##
+# = SEGGER RTT
+##
+
+{ 'include': 'common.json' }
+
+{ 'command': 'rtt-start'}
