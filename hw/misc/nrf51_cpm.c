@@ -28,12 +28,12 @@ static uint64_t cpm_read(void *opaque, hwaddr offset, unsigned int size)
         r = s->event_hfclkstarted;
         break;
     case NRF51_POWER_SYSTEMOFF:
-        r = 1;
         break;
+    default:
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "%s: bad read offset 0x%" HWADDR_PRIx "\n",
+                      __func__, offset);
     }
-
-    qemu_log("%s: read offset 0x%" HWADDR_PRIx "\n",
-             __func__, offset);
 
     return r;
 }
@@ -73,12 +73,11 @@ static void cpm_write(void *opaque, hwaddr offset, uint64_t value, unsigned int 
         }
         break;
     default:
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "%s: bad write offset 0x%" HWADDR_PRIx "\n",
+                      __func__, offset);
         break;
-
     }
-    qemu_log(
-            "%s: write offset 0x%" HWADDR_PRIx ", value = %lu \n",
-            __func__, offset, value);
 }
 
 static const MemoryRegionOps cpm_ops = {

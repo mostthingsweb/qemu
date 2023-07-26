@@ -14,7 +14,6 @@
 #include "hw/sysbus.h"
 #include "hw/qdev-clock.h"
 #include "hw/misc/unimp.h"
-#include "qemu/log.h"
 
 #include "hw/arm/nrf51.h"
 #include "hw/arm/nrf51_soc.h"
@@ -33,26 +32,6 @@
 
 /* HCLK (the main CPU clock) on this SoC is always 16MHz */
 #define HCLK_FRQ 16000000
-
-static uint64_t clock_read(void *opaque, hwaddr addr, unsigned int size)
-{
-    qemu_log_mask(LOG_UNIMP, "%s: 0x%" HWADDR_PRIx " [%u]\n",
-                  __func__, addr, size);
-    return 1;
-}
-
-static void clock_write(void *opaque, hwaddr addr, uint64_t data,
-                        unsigned int size)
-{
-    qemu_log_mask(LOG_UNIMP, "%s: 0x%" HWADDR_PRIx " <- 0x%" PRIx64 " [%u]\n",
-                  __func__, addr, data, size);
-}
-
-static const MemoryRegionOps clock_ops = {
-    .read = clock_read,
-    .write = clock_write
-};
-
 
 static void nrf51_soc_realize(DeviceState *dev_soc, Error **errp)
 {
@@ -174,11 +153,6 @@ static void nrf51_soc_realize(DeviceState *dev_soc, Error **errp)
     }
 
     /* STUB Peripherals */
-    memory_region_init_io(&s->clock, OBJECT(dev_soc), &clock_ops, NULL,
-                          "nrf51_soc.clock", NRF51_PERIPHERAL_SIZE);
-    memory_region_add_subregion_overlap(&s->container,
-                                        NRF51_IOMEM_BASE, &s->clock, -1);
-
     create_unimplemented_device("nrf51_soc.io", NRF51_IOMEM_BASE,
                                 NRF51_IOMEM_SIZE);
     create_unimplemented_device("nrf51_soc.private",
