@@ -18,6 +18,11 @@
 #include "hw/misc/nrf51_cpm.h"
 #include "target/arm/arm-powerctl.h"
 
+static bool is_hfclk_task_running(NRF51CPMState *s)
+{
+    return timer_pending(&s->hfclk_timer);
+}
+
 static uint64_t cpm_read(void *opaque, hwaddr offset, unsigned int size)
 {
     NRF51CPMState *s = NRF51_CPM(opaque);
@@ -33,10 +38,17 @@ static uint64_t cpm_read(void *opaque, hwaddr offset, unsigned int size)
     case NRF51_POWER_SYSTEMOFF:
         break;
     case NRF51_CPM_REG_INTENCLR:
-        r = s->inten;
-        break;
     case NRF51_CPM_REG_INTENSET:
         r = s->inten;
+        break;
+    case NRF51_CLOCK_REG_HFCLKRUN:
+        r = is_hfclk_task_running(s);
+        break;
+    case NRF51_CLOCK_REG_HFCLKSTAT:
+        // bit 0: 0 = RC oscillator running, 1 = XTAL running
+        
+        r = deposit32(s->is_hfclk_using_xtal, 16, 1,
+            s->is_hfclk_using_xtal);
         break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR,
@@ -55,17 +67,24 @@ static void cpm_write(void *opaque, hwaddr offset, uint64_t value, unsigned int 
     case NRF51_CLOCK_TASK_HFCLKSTART:
         if (value == NRF51_TRIGGER_TASK) {
             int64_t timeout = qemu_clock_get_us(QEMU_CLOCK_VIRTUAL);
+            // From nRF51802, typical startup time is 800 us for 16 MHz xtal. For 32 MHz,
+            // it is 750 us. We don't know which one is actually wired to XC1/XC2 pins, so
+            // assume worst case delay.
+            //
+            // The documentation makes reference to a HFCLKSRC register, but this appears to
+            // be a documentation bug. See https://os.mbed.com/questions/6628/some-registers-not-included-in-nrf51h/
             timeout += 800;
             timer_mod(&s->hfclk_timer, timeout);
         }
         break;
     case NRF51_CLOCK_TASK_HFCLKSTOP:
         if (value == NRF51_TRIGGER_TASK) {
-            if (timer_pending(&s->hfclk_timer)) {
+            if (is_hfclk_task_running(s)) {
                 timer_del(&s->hfclk_timer);
             }
 
             s->event_hfclkstarted = 0;
+            s->is_hfclk_using_xtal = false;
         }
         break;
     case NRF51_CLOCK_EVENT_HFCLKSTARTED:
@@ -104,6 +123,7 @@ static void nrf51_cpm_hfclk_timer_expire(void *opaque)
 {
     NRF51CPMState *s = NRF51_CPM(opaque);
     s->event_hfclkstarted = 1;
+    s->is_hfclk_using_xtal = true;
     timer_del(&s->hfclk_timer);
 }
 
@@ -137,6 +157,7 @@ static void nrf51_cpm_reset(DeviceState *dev)
 {
     NRF51CPMState *s = NRF51_CPM(dev);
 
+    s->is_hfclk_using_xtal = false;
     s->event_hfclkstarted = 0;
     s->xtalfreq = 0;
 

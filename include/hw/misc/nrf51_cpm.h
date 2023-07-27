@@ -56,18 +56,15 @@ struct NRF51CPMState {
     MemoryRegion mmio;
 
     QEMUTimer hfclk_timer;
+    bool is_hfclk_using_xtal;
 
+    // Events
     uint32_t event_hfclkstarted;
 
-
+    // Registers
     uint8_t xtalfreq;
 
     uint32_t inten;
-
-//    /* Time between generation of successive unfiltered values in us */
-//    uint16_t period_unfiltered_us;
-//    /* Time between generation of successive filtered values in us */
-//    uint16_t period_filtered_us;
 };
 
 
