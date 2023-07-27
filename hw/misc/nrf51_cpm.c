@@ -27,7 +27,16 @@ static uint64_t cpm_read(void *opaque, hwaddr offset, unsigned int size)
     case NRF51_CLOCK_EVENT_HFCLKSTARTED:
         r = s->event_hfclkstarted;
         break;
+    case NRF51_CLOCK_REG_XTALFREQ:
+        r = s->xtalfreq;
+        break;
     case NRF51_POWER_SYSTEMOFF:
+        break;
+    case NRF51_CPM_REG_INTENCLR:
+        r = s->inten;
+        break;
+    case NRF51_CPM_REG_INTENSET:
+        r = s->inten;
         break;
     default:
         qemu_log_mask(LOG_GUEST_ERROR,
@@ -63,6 +72,9 @@ static void cpm_write(void *opaque, hwaddr offset, uint64_t value, unsigned int 
         if (value == NRF51_EVENT_CLEAR) {
             s->event_hfclkstarted = 0;
         }
+        break;
+    case NRF51_CLOCK_REG_XTALFREQ:
+        s->xtalfreq = value;
         break;
     case NRF51_POWER_SYSTEMOFF:
         qemu_log(
@@ -126,6 +138,7 @@ static void nrf51_cpm_reset(DeviceState *dev)
     NRF51CPMState *s = NRF51_CPM(dev);
 
     s->event_hfclkstarted = 0;
+    s->xtalfreq = 0;
 
     timer_del(&s->hfclk_timer);
 }

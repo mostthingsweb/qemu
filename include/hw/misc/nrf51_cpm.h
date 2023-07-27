@@ -27,8 +27,25 @@ OBJECT_DECLARE_SIMPLE_TYPE(NRF51CPMState, NRF51_CPM)
 #define NRF51_CLOCK_TASK_CALSTART         0x014
 #define NRF51_CLOCK_TASK_CALSTOP          0x018
 
-
 #define NRF51_CLOCK_EVENT_HFCLKSTARTED    0x100
+#define NRF51_CLOCK_EVENT_LFCLKSTARTED    0x104
+#define NRF51_CLOCK_EVENT_DONE            0x10C
+#define NRF51_CLOCK_EVENT_CTTO            0x110
+
+#define NRF51_CPM_REG_INTENSET            0x304
+#define NRF51_CPM_REG_INTENCLR            0x308
+#define NRF51_CLOCK_REG_HFCLKRUN          0x408
+#define NRF51_CLOCK_REG_HFCLKSTAT         0x40C
+#define NRF51_CLOCK_REG_LFCLKRUN          0x414
+#define NRF51_CLOCK_REG_LFCLKSTAT         0x418
+#define NRF51_CLOCK_REG_LFCLKSRCCOPY      0x41C
+#define NRF51_CLOCK_REG_LFCLKSRC          0x518
+#define NRF51_CLOCK_REG_CTIV              0x538
+
+
+
+#define NRF51_CLOCK_REG_XTALFREQ          0x550
+
 
 
 #define NRF51_POWER_SYSTEMOFF             0x500
@@ -44,6 +61,8 @@ struct NRF51CPMState {
 
 
     uint8_t xtalfreq;
+
+    uint32_t inten;
 
 //    /* Time between generation of successive unfiltered values in us */
 //    uint16_t period_unfiltered_us;
