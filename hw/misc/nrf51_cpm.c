@@ -45,8 +45,10 @@ static uint64_t cpm_read(void *opaque, hwaddr offset, unsigned int size)
         r = is_hfclk_task_running(s);
         break;
     case NRF51_CLOCK_REG_HFCLKSTAT:
+        // Simplification: the RC oscillator typical startup time is 4.2 us.
+        //
         // bit 0: 0 = RC oscillator running, 1 = XTAL running
-        
+        // bit 1: is HFCLK running at all?
         r = deposit32(s->is_hfclk_using_xtal, 16, 1,
             s->is_hfclk_using_xtal);
         break;

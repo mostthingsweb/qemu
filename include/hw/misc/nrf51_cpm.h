@@ -56,6 +56,7 @@ struct NRF51CPMState {
     MemoryRegion mmio;
 
     QEMUTimer hfclk_timer;
+
     bool is_hfclk_using_xtal;
 
     // Events
